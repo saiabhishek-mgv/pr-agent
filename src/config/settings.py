@@ -13,6 +13,7 @@ from src.utils.logger import logger
 
 class AnalysisConfig(BaseModel):
     """Analysis configuration settings."""
+
     max_files_full_analysis: int = Field(default=50, ge=1)
     max_diff_size_per_file: int = Field(default=1000, ge=100)
     enable_security_check: bool = True
@@ -23,6 +24,7 @@ class AnalysisConfig(BaseModel):
 
 class CommentConfig(BaseModel):
     """Comment formatting configuration."""
+
     include_summary: bool = True
     include_key_files: bool = True
     include_risks: bool = True
@@ -32,6 +34,7 @@ class CommentConfig(BaseModel):
 
 class AIConfig(BaseModel):
     """AI service configuration."""
+
     model: str = "claude-sonnet-4-5-20250929"
     max_tokens: int = Field(default=4096, ge=100, le=8192)
     temperature: float = Field(default=0.3, ge=0.0, le=1.0)
@@ -39,6 +42,7 @@ class AIConfig(BaseModel):
 
 class Settings(BaseModel):
     """Main configuration settings."""
+
     analysis: AnalysisConfig = Field(default_factory=AnalysisConfig)
     comment: CommentConfig = Field(default_factory=CommentConfig)
     ai: AIConfig = Field(default_factory=AIConfig)
@@ -120,16 +124,24 @@ def load_settings(config_path: Optional[str] = None) -> Settings:
             pass
 
     if os.getenv("PR_AGENT_ENABLE_SECURITY") is not None:
-        analysis_config["enable_security_check"] = os.getenv("PR_AGENT_ENABLE_SECURITY").lower() == "true"
+        analysis_config["enable_security_check"] = (
+            os.getenv("PR_AGENT_ENABLE_SECURITY").lower() == "true"
+        )
 
     if os.getenv("PR_AGENT_ENABLE_PERFORMANCE") is not None:
-        analysis_config["enable_performance_check"] = os.getenv("PR_AGENT_ENABLE_PERFORMANCE").lower() == "true"
+        analysis_config["enable_performance_check"] = (
+            os.getenv("PR_AGENT_ENABLE_PERFORMANCE").lower() == "true"
+        )
 
     if os.getenv("PR_AGENT_ENABLE_BREAKING") is not None:
-        analysis_config["enable_breaking_change_check"] = os.getenv("PR_AGENT_ENABLE_BREAKING").lower() == "true"
+        analysis_config["enable_breaking_change_check"] = (
+            os.getenv("PR_AGENT_ENABLE_BREAKING").lower() == "true"
+        )
 
     if os.getenv("PR_AGENT_ENABLE_TEST_COVERAGE") is not None:
-        analysis_config["enable_test_coverage_check"] = os.getenv("PR_AGENT_ENABLE_TEST_COVERAGE").lower() == "true"
+        analysis_config["enable_test_coverage_check"] = (
+            os.getenv("PR_AGENT_ENABLE_TEST_COVERAGE").lower() == "true"
+        )
 
     file_config["analysis"] = analysis_config
 
@@ -139,7 +151,7 @@ def load_settings(config_path: Optional[str] = None) -> Settings:
         github_token=github_token,
         anthropic_api_key=anthropic_api_key,
         repository=repository,
-        pr_number=pr_number
+        pr_number=pr_number,
     )
 
     # Validate required settings

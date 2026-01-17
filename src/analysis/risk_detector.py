@@ -14,74 +14,169 @@ class RiskDetector:
     # Security patterns
     SECURITY_PATTERNS = [
         # SQL injection
-        (r'execute\s*\(.*\+.*\)', RiskLevel.HIGH, "Potential SQL injection",
-         "Use parameterized queries instead of string concatenation"),
-        (r'(SELECT|INSERT|UPDATE|DELETE).*\+.*', RiskLevel.HIGH, "Potential SQL injection",
-         "Use parameterized queries instead of string concatenation"),
-        (r'\.raw\s*\(.*\+.*\)', RiskLevel.HIGH, "Potential SQL injection in raw query",
-         "Use parameterized queries with placeholders"),
-        (r'format\s*\(.*SELECT.*\)', RiskLevel.HIGH, "SQL query with string formatting",
-         "Use ORM or parameterized queries"),
-
+        (
+            r"execute\s*\(.*\+.*\)",
+            RiskLevel.HIGH,
+            "Potential SQL injection",
+            "Use parameterized queries instead of string concatenation",
+        ),
+        (
+            r"(SELECT|INSERT|UPDATE|DELETE).*\+.*",
+            RiskLevel.HIGH,
+            "Potential SQL injection",
+            "Use parameterized queries instead of string concatenation",
+        ),
+        (
+            r"\.raw\s*\(.*\+.*\)",
+            RiskLevel.HIGH,
+            "Potential SQL injection in raw query",
+            "Use parameterized queries with placeholders",
+        ),
+        (
+            r"format\s*\(.*SELECT.*\)",
+            RiskLevel.HIGH,
+            "SQL query with string formatting",
+            "Use ORM or parameterized queries",
+        ),
         # Hardcoded secrets
-        (r'password\s*=\s*["\'][^"\']+["\']', RiskLevel.HIGH, "Hardcoded password detected",
-         "Use environment variables for sensitive data"),
-        (r'api[_-]?key\s*=\s*["\'][^"\']+["\']', RiskLevel.HIGH, "Hardcoded API key detected",
-         "Store API keys in environment variables"),
-        (r'secret\s*=\s*["\'][^"\']+["\']', RiskLevel.HIGH, "Hardcoded secret detected",
-         "Use secure secret management"),
-        (r'token\s*=\s*["\'][a-zA-Z0-9]{20,}["\']', RiskLevel.HIGH, "Hardcoded token detected",
-         "Store tokens securely in environment variables"),
-
+        (
+            r'password\s*=\s*["\'][^"\']+["\']',
+            RiskLevel.HIGH,
+            "Hardcoded password detected",
+            "Use environment variables for sensitive data",
+        ),
+        (
+            r'api[_-]?key\s*=\s*["\'][^"\']+["\']',
+            RiskLevel.HIGH,
+            "Hardcoded API key detected",
+            "Store API keys in environment variables",
+        ),
+        (
+            r'secret\s*=\s*["\'][^"\']+["\']',
+            RiskLevel.HIGH,
+            "Hardcoded secret detected",
+            "Use secure secret management",
+        ),
+        (
+            r'token\s*=\s*["\'][a-zA-Z0-9]{20,}["\']',
+            RiskLevel.HIGH,
+            "Hardcoded token detected",
+            "Store tokens securely in environment variables",
+        ),
         # XSS vulnerabilities
-        (r'innerHTML\s*=', RiskLevel.MEDIUM, "Potential XSS via innerHTML",
-         "Use textContent or sanitize input before setting innerHTML"),
-        (r'dangerouslySetInnerHTML', RiskLevel.MEDIUM, "Using dangerouslySetInnerHTML",
-         "Ensure content is properly sanitized"),
-        (r'eval\s*\(', RiskLevel.HIGH, "Using eval() - security risk",
-         "Avoid eval(), use safer alternatives like JSON.parse()"),
-
+        (
+            r"innerHTML\s*=",
+            RiskLevel.MEDIUM,
+            "Potential XSS via innerHTML",
+            "Use textContent or sanitize input before setting innerHTML",
+        ),
+        (
+            r"dangerouslySetInnerHTML",
+            RiskLevel.MEDIUM,
+            "Using dangerouslySetInnerHTML",
+            "Ensure content is properly sanitized",
+        ),
+        (
+            r"eval\s*\(",
+            RiskLevel.HIGH,
+            "Using eval() - security risk",
+            "Avoid eval(), use safer alternatives like JSON.parse()",
+        ),
         # Unsafe deserialization
-        (r'pickle\.loads?\s*\(', RiskLevel.HIGH, "Unsafe deserialization with pickle",
-         "Use safer serialization formats like JSON"),
-        (r'yaml\.load\s*\((?!.*Loader)', RiskLevel.MEDIUM, "Unsafe YAML loading",
-         "Use yaml.safe_load() instead of yaml.load()"),
-
+        (
+            r"pickle\.loads?\s*\(",
+            RiskLevel.HIGH,
+            "Unsafe deserialization with pickle",
+            "Use safer serialization formats like JSON",
+        ),
+        (
+            r"yaml\.load\s*\((?!.*Loader)",
+            RiskLevel.MEDIUM,
+            "Unsafe YAML loading",
+            "Use yaml.safe_load() instead of yaml.load()",
+        ),
         # Command injection
-        (r'os\.system\s*\(.*\+', RiskLevel.HIGH, "Potential command injection",
-         "Use subprocess with argument list instead of shell=True"),
-        (r'subprocess\..*shell\s*=\s*True', RiskLevel.MEDIUM, "Shell=True in subprocess",
-         "Avoid shell=True, use argument list for safety"),
-
+        (
+            r"os\.system\s*\(.*\+",
+            RiskLevel.HIGH,
+            "Potential command injection",
+            "Use subprocess with argument list instead of shell=True",
+        ),
+        (
+            r"subprocess\..*shell\s*=\s*True",
+            RiskLevel.MEDIUM,
+            "Shell=True in subprocess",
+            "Avoid shell=True, use argument list for safety",
+        ),
         # Weak crypto
-        (r'MD5|md5', RiskLevel.MEDIUM, "MD5 is cryptographically weak",
-         "Use SHA-256 or stronger hash algorithms"),
-        (r'SHA1|sha1', RiskLevel.MEDIUM, "SHA-1 is deprecated",
-         "Use SHA-256 or stronger hash algorithms"),
+        (
+            r"MD5|md5",
+            RiskLevel.MEDIUM,
+            "MD5 is cryptographically weak",
+            "Use SHA-256 or stronger hash algorithms",
+        ),
+        (
+            r"SHA1|sha1",
+            RiskLevel.MEDIUM,
+            "SHA-1 is deprecated",
+            "Use SHA-256 or stronger hash algorithms",
+        ),
     ]
 
     # Breaking change patterns
     BREAKING_CHANGE_PATTERNS = [
-        (r'^-\s*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(', RiskLevel.MEDIUM,
-         "Public method removed", "This may break existing code"),
-        (r'^-\s*class\s+([a-zA-Z_][a-zA-Z0-9_]*)', RiskLevel.HIGH,
-         "Class removed", "This will break code depending on this class"),
-        (r'^-\s*export\s+(function|class|const|let|var)', RiskLevel.MEDIUM,
-         "Export removed", "This may break imports in other files"),
-        (r'def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\):.*\n.*def\s+\1\s*\([^)]*\):', RiskLevel.MEDIUM,
-         "Function signature changed", "Verify all callers are updated"),
+        (
+            r"^-\s*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(",
+            RiskLevel.MEDIUM,
+            "Public method removed",
+            "This may break existing code",
+        ),
+        (
+            r"^-\s*class\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+            RiskLevel.HIGH,
+            "Class removed",
+            "This will break code depending on this class",
+        ),
+        (
+            r"^-\s*export\s+(function|class|const|let|var)",
+            RiskLevel.MEDIUM,
+            "Export removed",
+            "This may break imports in other files",
+        ),
+        (
+            r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\):.*\n.*def\s+\1\s*\([^)]*\):",
+            RiskLevel.MEDIUM,
+            "Function signature changed",
+            "Verify all callers are updated",
+        ),
     ]
 
     # Performance patterns
     PERFORMANCE_PATTERNS = [
-        (r'\.all\(\).*for.*in', RiskLevel.MEDIUM, "N+1 query pattern detected",
-         "Consider using select_related() or prefetch_related()"),
-        (r'for\s+\w+\s+in\s+range\s*\(\s*\d{4,}', RiskLevel.MEDIUM,
-         "Large loop iteration", "Consider pagination or batch processing"),
-        (r'while\s+True:', RiskLevel.LOW, "Infinite loop detected",
-         "Ensure there's a proper exit condition"),
-        (r'sleep\s*\(\s*[0-9]+\s*\)', RiskLevel.LOW, "Sleep call in code",
-         "Consider async/await or event-driven approach"),
+        (
+            r"\.all\(\).*for.*in",
+            RiskLevel.MEDIUM,
+            "N+1 query pattern detected",
+            "Consider using select_related() or prefetch_related()",
+        ),
+        (
+            r"for\s+\w+\s+in\s+range\s*\(\s*\d{4,}",
+            RiskLevel.MEDIUM,
+            "Large loop iteration",
+            "Consider pagination or batch processing",
+        ),
+        (
+            r"while\s+True:",
+            RiskLevel.LOW,
+            "Infinite loop detected",
+            "Ensure there's a proper exit condition",
+        ),
+        (
+            r"sleep\s*\(\s*[0-9]+\s*\)",
+            RiskLevel.LOW,
+            "Sleep call in code",
+            "Consider async/await or event-driven approach",
+        ),
     ]
 
     def __init__(self, settings: Settings):
@@ -104,17 +199,17 @@ class RiskDetector:
         Returns:
             Approximate line number
         """
-        lines_before = patch[:match_position].count('\n')
+        lines_before = patch[:match_position].count("\n")
 
         # Parse patch to find actual line number
         current_line = 0
-        for _i, line in enumerate(patch.split('\n')[:lines_before + 1]):
-            if line.startswith('@@'):
+        for _i, line in enumerate(patch.split("\n")[: lines_before + 1]):
+            if line.startswith("@@"):
                 # Extract starting line number
-                match = re.search(r'\+(\d+)', line)
+                match = re.search(r"\+(\d+)", line)
                 if match:
                     current_line = int(match.group(1))
-            elif line.startswith('+'):
+            elif line.startswith("+"):
                 current_line += 1
 
         return current_line if current_line > 0 else lines_before + 1
@@ -139,8 +234,12 @@ class RiskDetector:
                 continue
 
             # Only check added lines (strip the '+' prefix)
-            added_lines = [line[1:] for line in file.patch.split('\n') if line.startswith('+') and not line.startswith('+++')]
-            content = '\n'.join(added_lines)
+            added_lines = [
+                line[1:]
+                for line in file.patch.split("\n")
+                if line.startswith("+") and not line.startswith("+++")
+            ]
+            content = "\n".join(added_lines)
 
             for pattern, level, title, suggestion in self.SECURITY_PATTERNS:
                 matches = re.finditer(pattern, content, re.IGNORECASE | re.DOTALL)
@@ -158,7 +257,7 @@ class RiskDetector:
                         file_path=file.filename,
                         line_number=line_num,
                         suggestion=suggestion,
-                        code_snippet=snippet
+                        code_snippet=snippet,
                     )
                     risks.append(risk)
 
@@ -197,7 +296,7 @@ class RiskDetector:
                         description=f"Breaking change in {file.filename}",
                         file_path=file.filename,
                         line_number=line_num,
-                        suggestion=suggestion
+                        suggestion=suggestion,
                     )
                     risks.append(risk)
 
@@ -224,8 +323,12 @@ class RiskDetector:
                 continue
 
             # Only check added lines (strip the '+' prefix)
-            added_lines = [line[1:] for line in file.patch.split('\n') if line.startswith('+') and not line.startswith('+++')]
-            content = '\n'.join(added_lines)
+            added_lines = [
+                line[1:]
+                for line in file.patch.split("\n")
+                if line.startswith("+") and not line.startswith("+++")
+            ]
+            content = "\n".join(added_lines)
 
             for pattern, level, title, suggestion in self.PERFORMANCE_PATTERNS:
                 matches = re.finditer(pattern, content, re.IGNORECASE | re.DOTALL)
@@ -239,7 +342,7 @@ class RiskDetector:
                         description=f"Performance concern in {file.filename}",
                         file_path=file.filename,
                         line_number=line_num,
-                        suggestion=suggestion
+                        suggestion=suggestion,
                     )
                     risks.append(risk)
 
@@ -266,9 +369,11 @@ class RiskDetector:
         test_files = set()
 
         for file in files:
-            if any(pattern in file.filename.lower() for pattern in ['test', 'spec', '__test__']):
+            if any(pattern in file.filename.lower() for pattern in ["test", "spec", "__test__"]):
                 test_files.add(file.filename)
-            elif not any(ext in file.filename.lower() for ext in ['.md', '.yml', '.yaml', '.json', '.txt']):
+            elif not any(
+                ext in file.filename.lower() for ext in [".md", ".yml", ".yaml", ".json", ".txt"]
+            ):
                 source_files.append(file)
 
         # Check if source files have corresponding test changes
@@ -278,7 +383,12 @@ class RiskDetector:
                 continue
 
             # Extract base filename for matching
-            base_name = file.filename.split('/')[-1].replace('.py', '').replace('.js', '').replace('.ts', '')
+            base_name = (
+                file.filename.split("/")[-1]
+                .replace(".py", "")
+                .replace(".js", "")
+                .replace(".ts", "")
+            )
 
             # Check if there's a related test file in changes
             has_test = any(base_name in test_file for test_file in test_files)
@@ -290,7 +400,7 @@ class RiskDetector:
                     title="No test updates for changed file",
                     description=f"{file.filename} was modified significantly without test updates",
                     file_path=file.filename,
-                    suggestion="Add or update tests to cover the changes"
+                    suggestion="Add or update tests to cover the changes",
                 )
                 risks.append(risk)
 

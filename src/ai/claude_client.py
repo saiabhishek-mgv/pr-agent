@@ -32,7 +32,7 @@ class ClaudeClient:
     @retry(
         retry=retry_if_exception_type(RateLimitError),
         stop=stop_after_attempt(3),
-        wait=wait_exponential(min=1, max=30)
+        wait=wait_exponential(min=1, max=30),
     )
     def _call_claude(self, prompt: str) -> str:
         """
@@ -54,12 +54,7 @@ class ClaudeClient:
                 model=self.model,
                 max_tokens=self.max_tokens,
                 temperature=self.temperature,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             response_text = message.content[0].text
@@ -91,17 +86,19 @@ class ClaudeClient:
         """
         try:
             # Build file list
-            file_list = "\n".join([
-                f"- {f.filename} (+{f.additions}/-{f.deletions})"
-                for f in key_files[:20]  # Limit to top 20 files
-            ])
+            file_list = "\n".join(
+                [
+                    f"- {f.filename} (+{f.additions}/-{f.deletions})"
+                    for f in key_files[:20]  # Limit to top 20 files
+                ]
+            )
 
             # Build key changes from diffs (limited)
             key_changes = []
             for file in key_files[:5]:  # Only first 5 files for context
                 if file.patch:
                     # Get first 20 lines of patch
-                    patch_lines = file.patch.split('\n')[:20]
+                    patch_lines = file.patch.split("\n")[:20]
                     key_changes.append(f"\n{file.filename}:\n" + "\n".join(patch_lines))
 
             key_changes_str = "\n".join(key_changes) if key_changes else "See file list above"
@@ -114,7 +111,7 @@ class ClaudeClient:
                 head_branch=pr_data.metadata.head_branch,
                 file_count=len(key_files),
                 file_list=file_list,
-                key_changes=key_changes_str
+                key_changes=key_changes_str,
             )
 
             logger.info("Generating AI summary")
@@ -131,10 +128,7 @@ class ClaudeClient:
             return None
 
     def analyze_risks(
-        self,
-        pr_data: PRData,
-        files: List[FileChange],
-        existing_risks: List[RiskItem]
+        self, pr_data: PRData, files: List[FileChange], existing_risks: List[RiskItem]
     ) -> List[RiskItem]:
         """
         Analyze risks using AI to supplement pattern-based detection.
@@ -152,7 +146,7 @@ class ClaudeClient:
             file_changes_parts = []
             for file in files[:10]:  # Limit to 10 files
                 if file.patch:
-                    patch_preview = '\n'.join(file.patch.split('\n')[:30])  # First 30 lines
+                    patch_preview = "\n".join(file.patch.split("\n")[:30])  # First 30 lines
                     file_changes_parts.append(
                         f"\nFile: {file.filename}\n"
                         f"Changes: +{file.additions}/-{file.deletions}\n"
@@ -162,17 +156,23 @@ class ClaudeClient:
             file_changes_str = "\n---\n".join(file_changes_parts)
 
             # Format existing risks
-            existing_risks_str = "\n".join([
-                f"- {r.category.value}: {r.title} ({r.level.value})"
-                for r in existing_risks[:10]
-            ]) if existing_risks else "None detected by patterns"
+            existing_risks_str = (
+                "\n".join(
+                    [
+                        f"- {r.category.value}: {r.title} ({r.level.value})"
+                        for r in existing_risks[:10]
+                    ]
+                )
+                if existing_risks
+                else "None detected by patterns"
+            )
 
             # Format prompt
             prompt = RISK_ANALYSIS_PROMPT.format(
                 title=pr_data.metadata.title,
                 description=pr_data.metadata.description or "No description",
                 file_changes=file_changes_str,
-                existing_risks=existing_risks_str
+                existing_risks=existing_risks_str,
             )
 
             logger.info("Analyzing risks with AI")
@@ -182,10 +182,10 @@ class ClaudeClient:
             try:
                 # Extract JSON from response (handle markdown code blocks)
                 json_str = response.strip()
-                if json_str.startswith('```'):
+                if json_str.startswith("```"):
                     # Remove markdown code block
-                    lines = json_str.split('\n')
-                    json_str = '\n'.join(lines[1:-1]) if len(lines) > 2 else json_str
+                    lines = json_str.split("\n")
+                    json_str = "\n".join(lines[1:-1]) if len(lines) > 2 else json_str
 
                 risk_data = json.loads(json_str)
 
@@ -217,7 +217,7 @@ class ClaudeClient:
                             title=risk_dict.get("title", "AI-identified risk"),
                             description=risk_dict.get("description", ""),
                             file_path=risk_dict.get("file_path"),
-                            suggestion=risk_dict.get("suggestion")
+                            suggestion=risk_dict.get("suggestion"),
                         )
                         ai_risks.append(risk)
 
@@ -241,10 +241,7 @@ class ClaudeClient:
             return []
 
     def generate_review_focus_areas(
-        self,
-        pr_data: PRData,
-        key_files: List[FileChange],
-        risks: List[RiskItem]
+        self, pr_data: PRData, key_files: List[FileChange], risks: List[RiskItem]
     ) -> List[str]:
         """
         Generate a checklist of review focus areas using AI.
@@ -259,16 +256,18 @@ class ClaudeClient:
         """
         try:
             # Format key files
-            key_files_str = "\n".join([
-                f"- {f.filename} (+{f.additions}/-{f.deletions})"
-                for f in key_files[:15]
-            ])
+            key_files_str = "\n".join(
+                [f"- {f.filename} (+{f.additions}/-{f.deletions})" for f in key_files[:15]]
+            )
 
             # Format risks
-            risks_str = "\n".join([
-                f"- {r.category.value} ({r.level.value}): {r.title}"
-                for r in risks[:10]
-            ]) if risks else "No significant risks detected"
+            risks_str = (
+                "\n".join(
+                    [f"- {r.category.value} ({r.level.value}): {r.title}" for r in risks[:10]]
+                )
+                if risks
+                else "No significant risks detected"
+            )
 
             # Format prompt
             prompt = REVIEW_FOCUS_PROMPT.format(
@@ -278,7 +277,7 @@ class ClaudeClient:
                 additions=pr_data.metadata.additions,
                 deletions=pr_data.metadata.deletions,
                 key_files=key_files_str,
-                risks=risks_str
+                risks=risks_str,
             )
 
             logger.info("Generating review focus areas with AI")
@@ -287,9 +286,9 @@ class ClaudeClient:
             # Parse JSON response
             try:
                 json_str = response.strip()
-                if json_str.startswith('```'):
-                    lines = json_str.split('\n')
-                    json_str = '\n'.join(lines[1:-1]) if len(lines) > 2 else json_str
+                if json_str.startswith("```"):
+                    lines = json_str.split("\n")
+                    json_str = "\n".join(lines[1:-1]) if len(lines) > 2 else json_str
 
                 focus_areas = json.loads(json_str)
 
@@ -302,7 +301,7 @@ class ClaudeClient:
             except json.JSONDecodeError as e:
                 logger.warning(f"Failed to parse focus areas as JSON: {e}")
                 # Fall back to splitting by newlines
-                lines = [line.strip('- ').strip() for line in response.split('\n') if line.strip()]
+                lines = [line.strip("- ").strip() for line in response.split("\n") if line.strip()]
                 return [line for line in lines if len(line) > 10][:7]
 
         except AIError as e:

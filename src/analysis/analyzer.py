@@ -24,9 +24,7 @@ class PRAnalyzer:
         """
         self.settings = settings
         self.github_client = github_client
-        self.diff_processor = DiffProcessor(
-            max_diff_size=settings.analysis.max_diff_size_per_file
-        )
+        self.diff_processor = DiffProcessor(max_diff_size=settings.analysis.max_diff_size_per_file)
         self.risk_detector = RiskDetector(settings)
 
         # Initialize AI client if API key is available

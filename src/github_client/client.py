@@ -63,7 +63,7 @@ class GitHubClient:
                 updated_at=pr.updated_at,
                 additions=pr.additions,
                 deletions=pr.deletions,
-                changed_files=pr.changed_files
+                changed_files=pr.changed_files,
             )
 
             logger.info(f"Fetched metadata for PR #{pr_number}: {pr.title}")
@@ -97,8 +97,10 @@ class GitHubClient:
                     additions=file.additions,
                     deletions=file.deletions,
                     changes=file.changes,
-                    patch=file.patch if hasattr(file, 'patch') else None,
-                    previous_filename=file.previous_filename if hasattr(file, 'previous_filename') else None
+                    patch=file.patch if hasattr(file, "patch") else None,
+                    previous_filename=(
+                        file.previous_filename if hasattr(file, "previous_filename") else None
+                    ),
                 )
                 files.append(file_change)
 

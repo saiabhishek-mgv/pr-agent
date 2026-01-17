@@ -13,23 +13,50 @@ class DiffProcessor:
     # File extensions to skip (binary, generated, etc.)
     SKIP_EXTENSIONS = {
         # Binary/media
-        '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg',
-        '.pdf', '.zip', '.tar', '.gz', '.bz2', '.7z',
-        '.mp3', '.mp4', '.avi', '.mov', '.wmv',
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".bmp",
+        ".ico",
+        ".svg",
+        ".pdf",
+        ".zip",
+        ".tar",
+        ".gz",
+        ".bz2",
+        ".7z",
+        ".mp3",
+        ".mp4",
+        ".avi",
+        ".mov",
+        ".wmv",
         # Compiled/generated
-        '.pyc', '.pyo', '.so', '.dll', '.exe', '.class', '.jar',
-        '.min.js', '.min.css', '.map',
+        ".pyc",
+        ".pyo",
+        ".so",
+        ".dll",
+        ".exe",
+        ".class",
+        ".jar",
+        ".min.js",
+        ".min.css",
+        ".map",
         # Lock files
-        '.lock', 'package-lock.json', 'yarn.lock', 'poetry.lock', 'Pipfile.lock',
+        ".lock",
+        "package-lock.json",
+        "yarn.lock",
+        "poetry.lock",
+        "Pipfile.lock",
     }
 
     SKIP_PATTERNS = [
-        r'.*\.min\..*',  # Minified files
-        r'.*-lock\..*',  # Lock files
-        r'(^|.*/)dist/.*',   # Distribution files
-        r'(^|.*/)build/.*',  # Build files
-        r'(^|.*/)node_modules/.*',  # Dependencies
-        r'(^|.*/)__pycache__/.*',   # Python cache
+        r".*\.min\..*",  # Minified files
+        r".*-lock\..*",  # Lock files
+        r"(^|.*/)dist/.*",  # Distribution files
+        r"(^|.*/)build/.*",  # Build files
+        r"(^|.*/)node_modules/.*",  # Dependencies
+        r"(^|.*/)__pycache__/.*",  # Python cache
     ]
 
     def __init__(self, max_diff_size: int = 1000):
@@ -76,13 +103,13 @@ class DiffProcessor:
         if not patch:
             return ""
 
-        lines = patch.split('\n')
+        lines = patch.split("\n")
 
         # Truncate if too large
         if len(lines) > self.max_diff_size:
-            truncated_lines = lines[:self.max_diff_size]
+            truncated_lines = lines[: self.max_diff_size]
             truncated_lines.append(f"\n... (truncated {len(lines) - self.max_diff_size} lines)")
-            return '\n'.join(truncated_lines)
+            return "\n".join(truncated_lines)
 
         return patch
 
@@ -97,27 +124,25 @@ class DiffProcessor:
             DiffStats instance
         """
         if not patch:
-            return DiffStats(
-                total_lines=0,
-                added_lines=0,
-                deleted_lines=0,
-                complexity_score=0.0
-            )
+            return DiffStats(total_lines=0, added_lines=0, deleted_lines=0, complexity_score=0.0)
 
-        lines = patch.split('\n')
+        lines = patch.split("\n")
         added = 0
         deleted = 0
         complexity = 0.0
 
         for line in lines:
-            if line.startswith('+') and not line.startswith('+++'):
+            if line.startswith("+") and not line.startswith("+++"):
                 added += 1
                 # Increase complexity for control structures
-                if any(keyword in line for keyword in ['if ', 'for ', 'while ', 'try:', 'except', 'class ', 'def ']):
+                if any(
+                    keyword in line
+                    for keyword in ["if ", "for ", "while ", "try:", "except", "class ", "def "]
+                ):
                     complexity += 1.5
-                elif any(keyword in line for keyword in ['import ', 'from ', 'return ', 'yield ']):
+                elif any(keyword in line for keyword in ["import ", "from ", "return ", "yield "]):
                     complexity += 0.5
-            elif line.startswith('-') and not line.startswith('---'):
+            elif line.startswith("-") and not line.startswith("---"):
                 deleted += 1
 
         # Normalize complexity score (0-10 scale)
@@ -131,7 +156,7 @@ class DiffProcessor:
             total_lines=len(lines),
             added_lines=added,
             deleted_lines=deleted,
-            complexity_score=complexity_score
+            complexity_score=complexity_score,
         )
 
     def process_files(self, files: List[FileChange]) -> List[FileChange]:
@@ -158,7 +183,9 @@ class DiffProcessor:
 
             processed_files.append(file)
 
-        logger.info(f"Processed {len(processed_files)} files (skipped {len(files) - len(processed_files)})")
+        logger.info(
+            f"Processed {len(processed_files)} files (skipped {len(files) - len(processed_files)})"
+        )
         return processed_files
 
     def prioritize_files(self, files: List[FileChange]) -> List[FileChange]:
@@ -175,23 +202,45 @@ class DiffProcessor:
         Returns:
             Sorted list with high-priority files first
         """
+
         def get_priority(file: FileChange) -> int:
             filename = file.filename.lower()
 
             # High priority patterns
             high_priority_patterns = [
-                'auth', 'security', 'crypto', 'password', 'token',
-                'api', 'endpoint', 'route', 'controller',
-                'sql', 'database', 'query', 'model',
-                'payment', 'billing', 'transaction'
+                "auth",
+                "security",
+                "crypto",
+                "password",
+                "token",
+                "api",
+                "endpoint",
+                "route",
+                "controller",
+                "sql",
+                "database",
+                "query",
+                "model",
+                "payment",
+                "billing",
+                "transaction",
             ]
 
             # Low priority patterns
             low_priority_patterns = [
-                'test', 'spec', 'mock',
-                'readme', 'doc', '.md',
-                'config', 'setting', '.yml', '.yaml', '.json',
-                'migration', 'fixture'
+                "test",
+                "spec",
+                "mock",
+                "readme",
+                "doc",
+                ".md",
+                "config",
+                "setting",
+                ".yml",
+                ".yaml",
+                ".json",
+                "migration",
+                "fixture",
             ]
 
             # Check high priority

@@ -52,12 +52,9 @@ class CommentFormatter:
         if not files:
             return "*No files to display*"
 
-        lines = [
-            "| File | Changes | Impact |",
-            "|------|---------|--------|"
-        ]
+        lines = ["| File | Changes | Impact |", "|------|---------|--------|"]
 
-        for file in files[:self.settings.comment.max_key_files]:
+        for file in files[: self.settings.comment.max_key_files]:
             # Determine impact based on changes
             if file.changes > 100:
                 impact = "High"
@@ -67,12 +64,9 @@ class CommentFormatter:
                 impact = "Low"
 
             # Format status
-            status_emoji = {
-                "added": "✨",
-                "removed": "🗑️",
-                "modified": "📝",
-                "renamed": "🔄"
-            }.get(file.status, "📝")
+            status_emoji = {"added": "✨", "removed": "🗑️", "modified": "📝", "renamed": "🔄"}.get(
+                file.status, "📝"
+            )
 
             lines.append(
                 f"| {status_emoji} `{file.filename}` | +{file.additions}, -{file.deletions} | {impact} |"
@@ -183,7 +177,7 @@ class CommentFormatter:
                 RiskCategory.BREAKING_CHANGE,
                 RiskCategory.PERFORMANCE,
                 RiskCategory.TEST_COVERAGE,
-                RiskCategory.OTHER
+                RiskCategory.OTHER,
             ]
 
             for category in category_order:

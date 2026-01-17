@@ -17,10 +17,7 @@ from src.github_client.models import (
 def settings():
     """Create test settings."""
     return Settings(
-        github_token="test_token",
-        anthropic_api_key="test_key",
-        repository="test/repo",
-        pr_number=1
+        github_token="test_token", anthropic_api_key="test_key", repository="test/repo", pr_number=1
     )
 
 
@@ -39,15 +36,11 @@ class TestCommentFormatter:
             summary="This is a test PR",
             key_files=[
                 FileChange(
-                    filename="test.py",
-                    status="modified",
-                    additions=10,
-                    deletions=5,
-                    changes=15
+                    filename="test.py", status="modified", additions=10, deletions=5, changes=15
                 )
             ],
             risks=[],
-            ai_enabled=False
+            ai_enabled=False,
         )
 
         comment = formatter.format_comment(result, total_files=1)
@@ -69,10 +62,10 @@ class TestCommentFormatter:
                     description="Unsafe query construction",
                     file_path="db/query.py",
                     line_number=42,
-                    suggestion="Use parameterized queries"
+                    suggestion="Use parameterized queries",
                 )
             ],
-            ai_enabled=False
+            ai_enabled=False,
         )
 
         comment = formatter.format_comment(result, total_files=1)
@@ -86,11 +79,8 @@ class TestCommentFormatter:
         """Test comment with review focus areas."""
         result = AnalysisResult(
             summary="Test PR",
-            review_focus_areas=[
-                "Check authentication logic",
-                "Verify error handling"
-            ],
-            ai_enabled=True
+            review_focus_areas=["Check authentication logic", "Verify error handling"],
+            ai_enabled=True,
         )
 
         comment = formatter.format_comment(result, total_files=1)
@@ -102,10 +92,7 @@ class TestCommentFormatter:
     def test_format_partial_analysis(self, formatter):
         """Test comment with partial analysis warning."""
         result = AnalysisResult(
-            summary="Test PR",
-            partial=True,
-            errors=["AI analysis failed"],
-            ai_enabled=False
+            summary="Test PR", partial=True, errors=["AI analysis failed"], ai_enabled=False
         )
 
         comment = formatter.format_comment(result, total_files=1)
@@ -126,20 +113,12 @@ class TestCommentFormatter:
         # Create many files
         files = [
             FileChange(
-                filename=f"file{i}.py",
-                status="modified",
-                additions=5,
-                deletions=2,
-                changes=7
+                filename=f"file{i}.py", status="modified", additions=5, deletions=2, changes=7
             )
             for i in range(15)
         ]
 
-        result = AnalysisResult(
-            summary="Large PR",
-            key_files=files,
-            ai_enabled=False
-        )
+        result = AnalysisResult(summary="Large PR", key_files=files, ai_enabled=False)
 
         comment = formatter.format_comment(result, total_files=15)
 
@@ -156,22 +135,22 @@ class TestCommentFormatter:
                     category=RiskCategory.SECURITY,
                     level=RiskLevel.HIGH,
                     title="Security issue 1",
-                    description="Test"
+                    description="Test",
                 ),
                 RiskItem(
                     category=RiskCategory.SECURITY,
                     level=RiskLevel.MEDIUM,
                     title="Security issue 2",
-                    description="Test"
+                    description="Test",
                 ),
                 RiskItem(
                     category=RiskCategory.PERFORMANCE,
                     level=RiskLevel.LOW,
                     title="Performance issue",
-                    description="Test"
+                    description="Test",
                 ),
             ],
-            ai_enabled=False
+            ai_enabled=False,
         )
 
         comment = formatter.format_comment(result, total_files=1)

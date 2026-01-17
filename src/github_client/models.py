@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 class RiskLevel(str, Enum):
     """Risk severity levels."""
+
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
     LOW = "LOW"
@@ -17,6 +18,7 @@ class RiskLevel(str, Enum):
 
 class RiskCategory(str, Enum):
     """Risk categories."""
+
     SECURITY = "SECURITY"
     BREAKING_CHANGE = "BREAKING_CHANGE"
     PERFORMANCE = "PERFORMANCE"
@@ -26,6 +28,7 @@ class RiskCategory(str, Enum):
 
 class PRMetadata(BaseModel):
     """Pull request metadata."""
+
     number: int
     title: str
     description: Optional[str] = None
@@ -42,6 +45,7 @@ class PRMetadata(BaseModel):
 
 class FileChange(BaseModel):
     """Information about a changed file."""
+
     filename: str
     status: str  # added, removed, modified, renamed
     additions: int
@@ -53,12 +57,14 @@ class FileChange(BaseModel):
 
 class PRData(BaseModel):
     """Complete PR data including metadata and file changes."""
+
     metadata: PRMetadata
     files: List[FileChange]
 
 
 class RiskItem(BaseModel):
     """A detected risk or issue."""
+
     category: RiskCategory
     level: RiskLevel
     title: str
@@ -71,6 +77,7 @@ class RiskItem(BaseModel):
 
 class AnalysisResult(BaseModel):
     """Complete analysis result."""
+
     summary: Optional[str] = None
     key_files: List[FileChange] = Field(default_factory=list)
     risks: List[RiskItem] = Field(default_factory=list)
@@ -82,6 +89,7 @@ class AnalysisResult(BaseModel):
 
 class DiffStats(BaseModel):
     """Statistics about diff content."""
+
     total_lines: int
     added_lines: int
     deleted_lines: int

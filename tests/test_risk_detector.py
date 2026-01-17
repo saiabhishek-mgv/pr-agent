@@ -11,10 +11,7 @@ from src.github_client.models import FileChange, RiskCategory, RiskLevel
 def settings():
     """Create test settings."""
     return Settings(
-        github_token="test_token",
-        anthropic_api_key="test_key",
-        repository="test/repo",
-        pr_number=1
+        github_token="test_token", anthropic_api_key="test_key", repository="test/repo", pr_number=1
     )
 
 
@@ -35,7 +32,7 @@ class TestRiskDetector:
             additions=5,
             deletions=2,
             changes=7,
-            patch='+query = "SELECT * FROM users WHERE id = " + user_input\n+cursor.execute(query)'
+            patch='+query = "SELECT * FROM users WHERE id = " + user_input\n+cursor.execute(query)',
         )
 
         risks = risk_detector.detect_security_risks([file])
@@ -51,7 +48,7 @@ class TestRiskDetector:
             additions=3,
             deletions=0,
             changes=3,
-            patch='+API_KEY = "sk_live_1234567890abcdef"\n+PASSWORD = "admin123"'
+            patch='+API_KEY = "sk_live_1234567890abcdef"\n+PASSWORD = "admin123"',
         )
 
         risks = risk_detector.detect_security_risks([file])
@@ -66,7 +63,7 @@ class TestRiskDetector:
             additions=2,
             deletions=1,
             changes=3,
-            patch='+element.innerHTML = userInput;'
+            patch="+element.innerHTML = userInput;",
         )
 
         risks = risk_detector.detect_security_risks([file])
@@ -81,7 +78,7 @@ class TestRiskDetector:
             additions=0,
             deletions=5,
             changes=5,
-            patch='-def get_user_profile(user_id):\n-    return User.query.get(user_id)'
+            patch="-def get_user_profile(user_id):\n-    return User.query.get(user_id)",
         )
 
         risks = risk_detector.detect_breaking_changes([file])
@@ -97,7 +94,7 @@ class TestRiskDetector:
             additions=3,
             deletions=0,
             changes=3,
-            patch='+users = User.objects.all()\n+for user in users:\n+    process_user(user)'
+            patch="+users = User.objects.all()\n+for user in users:\n+    process_user(user)",
         )
 
         risks = risk_detector.detect_performance_issues([file])
@@ -113,7 +110,7 @@ class TestRiskDetector:
                 additions=50,
                 deletions=10,
                 changes=60,
-                patch="+def process_payment(amount): pass"
+                patch="+def process_payment(amount): pass",
             ),
             # No corresponding test file
         ]
@@ -130,7 +127,7 @@ class TestRiskDetector:
             additions=5,
             deletions=2,
             changes=7,
-            patch='+def add(a, b):\n+    return a + b'
+            patch="+def add(a, b):\n+    return a + b",
         )
 
         risks = risk_detector.detect_security_risks([file])
@@ -144,7 +141,7 @@ class TestRiskDetector:
             additions=5,
             deletions=0,
             changes=5,
-            patch='+password = "hardcoded"\n+query = "SELECT * FROM users WHERE id = " + user_id'
+            patch='+password = "hardcoded"\n+query = "SELECT * FROM users WHERE id = " + user_id',
         )
 
         risks = risk_detector.detect_all_risks([file])
