@@ -1,6 +1,7 @@
 """Tests for risk detector."""
 
 import pytest
+
 from src.analysis.risk_detector import RiskDetector
 from src.config.settings import Settings
 from src.github_client.models import FileChange, RiskCategory, RiskLevel

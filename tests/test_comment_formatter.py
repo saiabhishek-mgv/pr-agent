@@ -1,6 +1,7 @@
 """Tests for comment formatter."""
 
 import pytest
+
 from src.config.settings import Settings
 from src.formatters.comment_formatter import CommentFormatter
 from src.github_client.models import (
