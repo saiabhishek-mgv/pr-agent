@@ -26,10 +26,10 @@ class DiffProcessor:
     SKIP_PATTERNS = [
         r'.*\.min\..*',  # Minified files
         r'.*-lock\..*',  # Lock files
-        r'.*/dist/.*',   # Distribution files
-        r'.*/build/.*',  # Build files
-        r'.*/node_modules/.*',  # Dependencies
-        r'.*/__pycache__/.*',   # Python cache
+        r'(^|.*/)dist/.*',   # Distribution files
+        r'(^|.*/)build/.*',  # Build files
+        r'(^|.*/)node_modules/.*',  # Dependencies
+        r'(^|.*/)__pycache__/.*',   # Python cache
     ]
 
     def __init__(self, max_diff_size: int = 1000):

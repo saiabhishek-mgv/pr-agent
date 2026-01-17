@@ -16,6 +16,8 @@ class RiskDetector:
         # SQL injection
         (r'execute\s*\(.*\+.*\)', RiskLevel.HIGH, "Potential SQL injection",
          "Use parameterized queries instead of string concatenation"),
+        (r'(SELECT|INSERT|UPDATE|DELETE).*\+.*', RiskLevel.HIGH, "Potential SQL injection",
+         "Use parameterized queries instead of string concatenation"),
         (r'\.raw\s*\(.*\+.*\)', RiskLevel.HIGH, "Potential SQL injection in raw query",
          "Use parameterized queries with placeholders"),
         (r'format\s*\(.*SELECT.*\)', RiskLevel.HIGH, "SQL query with string formatting",
@@ -136,12 +138,12 @@ class RiskDetector:
             if not file.patch:
                 continue
 
-            # Only check added lines
-            added_lines = [line for line in file.patch.split('\n') if line.startswith('+')]
+            # Only check added lines (strip the '+' prefix)
+            added_lines = [line[1:] for line in file.patch.split('\n') if line.startswith('+') and not line.startswith('+++')]
             content = '\n'.join(added_lines)
 
             for pattern, level, title, suggestion in self.SECURITY_PATTERNS:
-                matches = re.finditer(pattern, content, re.IGNORECASE)
+                matches = re.finditer(pattern, content, re.IGNORECASE | re.DOTALL)
                 for match in matches:
                     line_num = self._extract_line_number(file.patch, match.start())
 
@@ -221,11 +223,12 @@ class RiskDetector:
             if not file.patch:
                 continue
 
-            added_lines = [line for line in file.patch.split('\n') if line.startswith('+')]
+            # Only check added lines (strip the '+' prefix)
+            added_lines = [line[1:] for line in file.patch.split('\n') if line.startswith('+') and not line.startswith('+++')]
             content = '\n'.join(added_lines)
 
             for pattern, level, title, suggestion in self.PERFORMANCE_PATTERNS:
-                matches = re.finditer(pattern, content, re.IGNORECASE)
+                matches = re.finditer(pattern, content, re.IGNORECASE | re.DOTALL)
                 for match in matches:
                     line_num = self._extract_line_number(file.patch, match.start())
 
