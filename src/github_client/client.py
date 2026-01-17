@@ -30,7 +30,7 @@ class GitHubClient:
             self.repo = self.client.get_repo(repository)
             logger.info(f"Connected to repository: {repository}")
         except GithubException as e:
-            raise GitHubAPIError(f"Failed to connect to repository {repository}: {e}")
+            raise GitHubAPIError(f"Failed to connect to repository {repository}: {e}") from e
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
     def get_pr_metadata(self, pr_number: int) -> PRMetadata:
@@ -70,7 +70,7 @@ class GitHubClient:
             return metadata
 
         except GithubException as e:
-            raise GitHubAPIError(f"Failed to fetch PR #{pr_number}: {e}")
+            raise GitHubAPIError(f"Failed to fetch PR #{pr_number}: {e}") from e
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
     def get_changed_files(self, pr_number: int) -> List[FileChange]:
@@ -106,7 +106,7 @@ class GitHubClient:
             return files
 
         except GithubException as e:
-            raise GitHubAPIError(f"Failed to fetch files for PR #{pr_number}: {e}")
+            raise GitHubAPIError(f"Failed to fetch files for PR #{pr_number}: {e}") from e
 
     def get_pr_data(self, pr_number: int) -> PRData:
         """
@@ -173,7 +173,7 @@ class GitHubClient:
             logger.info(f"Posted comment on PR #{pr_number}")
 
         except GithubException as e:
-            raise GitHubAPIError(f"Failed to post comment on PR #{pr_number}: {e}")
+            raise GitHubAPIError(f"Failed to post comment on PR #{pr_number}: {e}") from e
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
     def update_comment(self, comment_id: int, body: str) -> None:
@@ -196,7 +196,7 @@ class GitHubClient:
             logger.info(f"Updated comment #{comment_id}")
 
         except GithubException as e:
-            raise GitHubAPIError(f"Failed to update comment #{comment_id}: {e}")
+            raise GitHubAPIError(f"Failed to update comment #{comment_id}: {e}") from e
 
     def post_or_update_comment(self, pr_number: int, body: str) -> None:
         """

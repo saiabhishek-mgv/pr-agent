@@ -108,7 +108,7 @@ class RiskDetector:
 
         # Parse patch to find actual line number
         current_line = 0
-        for i, line in enumerate(patch.split('\n')[:lines_before + 1]):
+        for _i, line in enumerate(patch.split('\n')[:lines_before + 1]):
             if line.startswith('@@'):
                 # Extract starting line number
                 match = re.search(r'\+(\d+)', line)

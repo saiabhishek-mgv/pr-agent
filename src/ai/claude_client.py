@@ -72,11 +72,11 @@ class ClaudeClient:
 
         except APIError as e:
             logger.error(f"Claude API error: {e}")
-            raise AIError(f"Claude API failed: {e}")
+            raise AIError(f"Claude API failed: {e}") from e
 
         except Exception as e:
             logger.error(f"Unexpected error calling Claude: {e}", exc_info=True)
-            raise AIError(f"Unexpected AI error: {e}")
+            raise AIError(f"Unexpected AI error: {e}") from e
 
     def analyze_pr_summary(self, pr_data: PRData, key_files: List[FileChange]) -> Optional[str]:
         """

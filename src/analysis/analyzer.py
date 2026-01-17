@@ -8,7 +8,6 @@ from src.analysis.risk_detector import RiskDetector
 from src.config.settings import Settings
 from src.github_client.client import GitHubClient
 from src.github_client.models import AnalysisResult, PRData
-from src.utils.exceptions import AIError, AnalysisError
 from src.utils.logger import logger
 
 

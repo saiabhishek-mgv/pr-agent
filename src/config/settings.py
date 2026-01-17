@@ -72,7 +72,7 @@ def load_yaml_config(config_path: Optional[str] = None) -> Dict[str, Any]:
         return {}
 
     try:
-        with open(config_file, "r") as f:
+        with open(config_file) as f:
             config = yaml.safe_load(f) or {}
         logger.info(f"Loaded configuration from {config_path}")
         return config

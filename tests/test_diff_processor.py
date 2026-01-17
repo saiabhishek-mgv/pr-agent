@@ -1,7 +1,5 @@
 """Tests for diff processor."""
 
-import pytest
-
 from src.analysis.diff_processor import DiffProcessor
 from src.github_client.models import FileChange
 
