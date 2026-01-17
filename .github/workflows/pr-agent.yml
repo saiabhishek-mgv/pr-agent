@@ -1,0 +1,35 @@
+name: PR Agent Analysis
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    name: Analyze Pull Request
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run PR Agent
+        uses: ./  # Use ./ if this is the PR Agent repo, or use the published action
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Optional: Specify custom config path
+          # config-path: '.pr-agent.yml'
+          # Optional: Override max files
+          # max-files: '50'
+          # Optional: Enable/disable specific checks
+          # enable-security: 'true'
+          # enable-performance: 'true'
+          # enable-breaking: 'true'
+          # enable-test-coverage: 'true'
+          # Optional: Set log level
+          # log-level: 'INFO'

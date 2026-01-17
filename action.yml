@@ -1,0 +1,83 @@
+name: 'PR Agent'
+description: 'AI-powered Pull Request analysis using Claude'
+author: 'PR Agent Contributors'
+
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+
+inputs:
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+    default: ${{ github.token }}
+
+  anthropic-api-key:
+    description: 'Anthropic API key for Claude AI'
+    required: true
+
+  config-path:
+    description: 'Path to PR Agent configuration file'
+    required: false
+    default: '.pr-agent.yml'
+
+  max-files:
+    description: 'Maximum number of files to analyze in full'
+    required: false
+
+  enable-security:
+    description: 'Enable security risk detection'
+    required: false
+    default: 'true'
+
+  enable-performance:
+    description: 'Enable performance risk detection'
+    required: false
+    default: 'true'
+
+  enable-breaking:
+    description: 'Enable breaking change detection'
+    required: false
+    default: 'true'
+
+  enable-test-coverage:
+    description: 'Enable test coverage check'
+    required: false
+    default: 'true'
+
+  log-level:
+    description: 'Logging level (DEBUG, INFO, WARNING, ERROR)'
+    required: false
+    default: 'INFO'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip install -r ${{ github.action_path }}/requirements.txt
+
+    - name: Run PR Agent
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_EVENT_NUMBER: ${{ github.event.pull_request.number }}
+        PR_AGENT_CONFIG_PATH: ${{ inputs.config-path }}
+        PR_AGENT_MAX_FILES: ${{ inputs.max-files }}
+        PR_AGENT_ENABLE_SECURITY: ${{ inputs.enable-security }}
+        PR_AGENT_ENABLE_PERFORMANCE: ${{ inputs.enable-performance }}
+        PR_AGENT_ENABLE_BREAKING: ${{ inputs.enable-breaking }}
+        PR_AGENT_ENABLE_TEST_COVERAGE: ${{ inputs.enable-test-coverage }}
+        LOG_LEVEL: ${{ inputs.log-level }}
+      run: |
+        cd ${{ github.action_path }}
+        python -m src.main

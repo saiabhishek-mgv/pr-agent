@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "number": 123,
+    "title": "Add JWT authentication",
+    "description": "This PR refactors authentication to use JWT tokens",
+    "author": "testuser",
+    "labels": ["enhancement", "security"],
+    "base_branch": "main",
+    "head_branch": "feature/jwt-auth",
+    "created_at": "2026-01-17T10:00:00Z",
+    "updated_at": "2026-01-17T12:00:00Z",
+    "additions": 250,
+    "deletions": 120,
+    "changed_files": 5
+  },
+  "files": [
+    {
+      "filename": "src/auth/jwt_handler.py",
+      "status": "added",
+      "additions": 120,
+      "deletions": 0,
+      "changes": 120,
+      "patch": "+import jwt\n+from datetime import datetime, timedelta\n+\n+SECRET_KEY = \"hardcoded_secret_123\"\n+\n+def generate_token(user_id):\n+    payload = {'user_id': user_id, 'exp': datetime.utcnow() + timedelta(hours=1)}\n+    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')"
+    },
+    {
+      "filename": "src/auth/middleware.py",
+      "status": "modified",
+      "additions": 45,
+      "deletions": 67,
+      "changes": 112,
+      "patch": "-def authenticate_session(request):\n-    session_id = request.cookies.get('session_id')\n-    return validate_session(session_id)\n+def authenticate_jwt(request):\n+    token = request.headers.get('Authorization')\n+    return validate_token(token)"
+    },
+    {
+      "filename": "tests/test_auth.py",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 20,
+      "changes": 55,
+      "patch": "+def test_jwt_generation():\n+    token = generate_token(123)\n+    assert token is not None"
+    }
+  ]
+}

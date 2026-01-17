@@ -1,0 +1,41 @@
+# PR Agent Configuration
+# Copy this file to .pr-agent.yml in your repository root and customize as needed
+
+analysis:
+  # Maximum number of files for full analysis (beyond this, files are prioritized)
+  max_files_full_analysis: 50
+
+  # Maximum lines of diff per file to analyze
+  max_diff_size_per_file: 1000
+
+  # Enable/disable specific analysis checks
+  enable_security_check: true
+  enable_performance_check: true
+  enable_breaking_change_check: true
+  enable_test_coverage_check: true
+
+comment:
+  # Include AI-generated summary
+  include_summary: true
+
+  # Include key files section
+  include_key_files: true
+
+  # Include risk analysis
+  include_risks: true
+
+  # Collapse large file lists using <details> tags
+  collapse_file_list: true
+
+  # Maximum number of key files to display
+  max_key_files: 10
+
+ai:
+  # Claude model to use
+  model: "claude-sonnet-4-5-20250929"
+
+  # Maximum tokens for AI response
+  max_tokens: 4096
+
+  # Temperature for AI responses (0.0 = focused, 1.0 = creative)
+  temperature: 0.3
